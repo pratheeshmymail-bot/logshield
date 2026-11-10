@@ -4,7 +4,7 @@ Offline-first redaction of common secrets and personal data from text logs.
 
 **LogShield runs locally. It does not call an AI service, upload files, or require an API key.**
 
-## Features in v0.1.0
+## Features
 
 - Redacts common API-key formats (OpenAI-style, GitHub, AWS access key IDs, Slack tokens).
 - Redacts bearer-token values and password/secret assignments.
@@ -56,6 +56,47 @@ Replace a file after creating `application.log.bak`:
 logshield application.log --in-place --summary
 ```
 
+## JSON-aware redaction
+
+Use `--json` with valid JSON input. LogShield redacts values under sensitive
+keys such as `password`, `api_key`, `access_token`, `authorization`, and
+`private_key`, as well as recognized secret patterns and email addresses
+inside string values. It preserves JSON structure and data types, but
+normalizes formatting and whitespace.
+
+```bash
+logshield application.json --json --output application.cleaned.json --summary
+```
+
+Invalid JSON is rejected rather than silently treated as plain text.
+
+## Additional detections (v0.3.0)
+
+The text scanner now also checks for JWT-shaped strings, Google API keys,
+common database connection URL passwords, and PEM private-key blocks.
+These checks are heuristic and may miss unknown formats or produce false
+positives. Review output before sharing it.
+
+## Custom rules
+
+Create a JSON array with a name and Python regular expression for each rule:
+
+```json
+[
+  {"name": "employee_id", "pattern": "EMP-[0-9]{5}", "replacement": "[EMPLOYEE_ID]"}
+]
+```
+
+Run with `--rules custom-rules.json`:
+
+```bash
+logshield application.log --rules custom-rules.json --summary
+logshield application.json --json --rules custom-rules.json --output cleaned.json
+```
+
+Custom regexes are trusted local configuration. Avoid complex patterns from
+untrusted sources because poorly designed regular expressions can be slow.
+
 ## Run tests
 
 ```bash
@@ -71,9 +112,9 @@ The first release handles text files only. It does not parse binary logs, archiv
 
 ## Roadmap
 
-- [ ] JSON-aware redaction that preserves valid JSON
-- [ ] Configurable custom patterns
-- [ ] Additional cloud-provider and database credential patterns
+- [x] JSON-aware redaction that preserves valid JSON
+- [x] Configurable custom patterns
+- [x] Additional cloud-provider and database credential patterns
 - [ ] GitHub Actions CI across supported Python versions
 - [ ] Optional HTML summary report
 - [ ] Windows/macOS/Linux packaged releases

@@ -1,0 +1,7 @@
+[
+  {
+    "name": "employee_id",
+    "pattern": "EMP-[0-9]{5}",
+    "replacement": "[EMPLOYEE_ID]"
+  }
+]

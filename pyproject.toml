@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logshield"
-version = "0.1.0"
+version = "0.3.0"
 description = "Offline-first sensitive-data redaction for text logs."
 readme = "README.md"
 requires-python = ">=3.9"
